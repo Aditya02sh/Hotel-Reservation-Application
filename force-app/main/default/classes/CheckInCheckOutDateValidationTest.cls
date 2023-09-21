@@ -2,7 +2,7 @@
 public class CheckInCheckOutDateValidationTest {
 
     @isTest
-    static void testCheckInCheckOutDateValidation() {
+    static void testValidReservation() {
         // Create a test record with valid dates (check-in before check-out)
         Reservation__c validReservation = new Reservation__c(
             Check_in_Date__c = Date.today().addDays(2),   // Future date
@@ -10,13 +10,16 @@ public class CheckInCheckOutDateValidationTest {
         );
 
         // Attempt to insert the valid reservation
-        try {
-            insert validReservation;
-        } catch (DmlException e) {
-            // If the validation rule is correctly implemented, this line should not be reached
-            System.assert(false, 'Inserting a reservation with valid dates should not throw an error.');
-        }
+        Test.startTest();
+        insert validReservation;
+        Test.stopTest();
 
+        // Verify that no error was thrown
+        System.assertEquals(null, validReservation.Check_in_Date__c);
+    }
+
+    @isTest
+    static void testInvalidReservation() {
         // Create a test record with invalid dates (check-in after check-out)
         Reservation__c invalidReservation = new Reservation__c(
             Check_in_Date__c = Date.today().addDays(5),   // Future date
@@ -24,6 +27,7 @@ public class CheckInCheckOutDateValidationTest {
         );
 
         // Attempt to insert the invalid reservation
+        Test.startTest();
         try {
             insert invalidReservation;
             // If the validation rule is correctly implemented, this line should not be reached
@@ -32,5 +36,6 @@ public class CheckInCheckOutDateValidationTest {
             // Verify that the error message is as expected
             System.assertEquals('Check-in Date cannot be greater than Check-out Date.', e.getDmlMessage(0));
         }
+        Test.stopTest();
     }
 }
