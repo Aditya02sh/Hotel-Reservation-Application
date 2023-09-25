@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RoomType</fullName>
+    <columns>Room_Type__c</columns>
+    <columns>Price_per_Night__c</columns>
+    <filterScope>Mine</filterScope>
+    <label>RoomType</label>
+</ListView>
