@@ -1,0 +1,43 @@
+<template>
+
+    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+
+        <thead>
+
+            <tr>
+
+                <th>Room Number</th>
+
+                <th>Price per Night</th>
+
+                <th>Availability Status</th>
+
+                <!-- Add more table headers for additional fields -->
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <template for:each={tableData} for:item="record">
+
+                <tr key={record.Id}>
+
+                    <td>{record.Name}</td>
+
+                    <td>{record.Price_per_Night__c}</td>
+
+                    <td>{record.Availability_Status__c}</td>
+
+                    <!-- Add more columns for additional fields -->
+
+                </tr>
+
+            </template>
+
+        </tbody>
+
+    </table>
+
+</template>
