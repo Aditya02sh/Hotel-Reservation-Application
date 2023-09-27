@@ -1,24 +1,24 @@
 public class CombineTriggerHandler {
-     public static void sendEmailNotification(List<Reservation__c> rsvList){
-
+    public static void sendEmailNotification(List<Reservation__c> rsvList) {
         List<Messaging.Email> emailList = new List<Messaging.Email>();
 
-        for(Reservation__c rsv : rsvList){
-            if(rsv.Email__c != null){
+        for (Reservation__c rsv : rsvList) {
+            if (rsv.Email__c != null) {
                 Messaging.SingleEmailMessage emailMsg = new Messaging.SingleEmailMessage();
                 String[] toAddress = new String[]{rsv.Email__c};
-                    emailMsg.setToAddresses(toAddress);
+                emailMsg.setToAddresses(toAddress);
                 String emailSub = 'Welcome ' + rsv.First_Name__c;
                 emailMsg.setSubject(emailSub);
                 String disName = 'Aditya Sharma';
                 emailMsg.setSenderDisplayName(disName);
 
-                String content = 'Hi ' + rsv.First_Name__c + '<br/><br/>'+
+                String content = 'Hi ' + rsv.First_Name__c + '<br/><br/>' +
                     'Your room reservation has been confirmed. Thank you for choosing our service.';
                 emailMsg.setHtmlBody(content);
                 emailList.add(emailMsg);
             }
         }
+
         Messaging.sendEmail(emailList);
     }
     
@@ -58,6 +58,45 @@ public class CombineTriggerHandler {
                     }
                 }
             }
+        }
+    }
+
+    public static void submitApplicationForApproval(List<Reservation__c> reservations) {
+        List<Approval.ProcessSubmitRequest> approvalRequests = new List<Approval.ProcessSubmitRequest>();
+
+        // Query for existing approval processes for the reservations
+        Set<Id> reservationIds = new Set<Id>();
+        for (Reservation__c app : reservations) {
+            reservationIds.add(app.Id);
+        }
+        Map<Id, Id> reservationToProcessMap = new Map<Id, Id>();
+        for (ProcessInstance pi : [
+            SELECT Id, TargetObjectId
+            FROM ProcessInstance
+            WHERE TargetObjectId IN :reservationIds
+        ]) {
+            reservationToProcessMap.put(pi.TargetObjectId, pi.Id);
+        }
+
+        for (Reservation__c app : reservations) {
+            // Check if the reservation is already in an approval process
+            if (reservationToProcessMap.containsKey(app.Id)) {
+                // You can handle this case, e.g., log an error or skip the record
+                // Here, we're just logging a message for illustration
+                System.debug('Reservation with Id ' + app.Id + ' is already in an approval process.');
+            } else {
+                // Create an approval request for each Reservation record
+                Approval.ProcessSubmitRequest req = new Approval.ProcessSubmitRequest();
+                req.setObjectId(app.Id);
+                approvalRequests.add(req);
+            }
+        }
+
+        // Submit the approval requests
+        if (!approvalRequests.isEmpty()) {
+            Approval.ProcessResult[] results = Approval.process(approvalRequests);
+
+            // Handle any errors or check the results as needed
         }
     }
 }

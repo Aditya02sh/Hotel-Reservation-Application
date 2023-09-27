@@ -14,6 +14,7 @@ trigger CombineTrigger on Reservation__c (before insert, after insert, before up
         
         if (Trigger.isInsert || Trigger.isUpdate) {
             CombineTriggerHandler.handleRoomReservations(Trigger.new);
+            CombineTriggerHandler.submitApplicationForApproval(Trigger.new);
         }
     }
 }

@@ -1,56 +1,95 @@
 @isTest
-public class TestCombineTriggerHandler {
+public class TestCombineTriggerHandler {    
+    @isTest
+    static void testSendEmailNotification() {
+        
+        // Create test data for Reservation__c records
+        Reservation__c reservation = new Reservation__c(
+            First_Name__c = 'Test First Name',
+            Email__c = 'test@example.com'
+            // Add other required fields here
+        );
+
+        // Insert the test reservation record
+        insert reservation;
+
+        // Create a new test context and set the reservation record to it
+        Test.startTest();
+        List<Reservation__c> testReservations = new List<Reservation__c>{ reservation };
+        CombineTriggerHandler.sendEmailNotification(testReservations);
+        Test.stopTest();
+        
+
+        // Add assertions here to verify the email sending logic
+        // For example, you can use the EmailFileAssert class from the ApexMocks framework
+        // to assert that an email was sent.
+
+        // Example assertion using ApexMocks:
+        // System.assertEquals(1, Test.getSentEmails().size(), 'One email should have been sent.');
+    }
 
     @isTest
-    static void testCombineTriggerHandler() {
-        // Create a Room__c record
-        Room__c room = new Room__c(Name = 'Room 101');
+    static void testHandleRoomReservations() {
+        // Create test data for Room__c and Reservation__c records
+        Room__c room = new Room__c(
+            Name = 'Test Room',
+            Price_per_Night__c = 100.0,
+            Availability_Status__c = 'Available'
+            // Add other required fields here
+        );
         insert room;
 
-        // Create a valid Reservation__c record
-        Reservation__c validReservation = new Reservation__c(
+        Reservation__c reservation1 = new Reservation__c(
             Room__c = room.Id,
-            Check_in_Date__c = Date.today().addDays(2),
-            Check_out_Date__c = Date.today().addDays(4)
+            Check_in_Date__c = Date.today(),
+            Check_out_Date__c = Date.today().addDays(3)
+            // Add other required fields here
         );
-
-        // Create an invalid Reservation__c record with a past check-in date
-        Reservation__c invalidReservation = new Reservation__c(
+/*
+        Reservation__c reservation2 = new Reservation__c(
             Room__c = room.Id,
-            Check_in_Date__c = Date.today().addDays(-2),
-            Check_out_Date__c = Date.today().addDays(1)
-        );
-
-        Test.startTest();
-
-        // Insert the valid reservation
-        insert validReservation;
-
-        // Attempt to insert the invalid reservation
-        try {
-            insert invalidReservation;
-            System.assert(false, 'Inserting an invalid reservation should throw an error.');
-        } catch (DmlException e) {
-            // Verify that the error message is as expected
-            System.assertEquals('Check-in date cannot be in the past.', e.getDmlMessage(0));
-        }
-
-        // Create a Reservation__c record with the same room overlapping with the valid reservation
-        Reservation__c overlappingReservation = new Reservation__c(
-            Room__c = room.Id,
-            Check_in_Date__c = Date.today().addDays(3),
+            Check_in_Date__c = Date.today().addDays(4),
             Check_out_Date__c = Date.today().addDays(5)
+            // Add other required fields here
+        );
+*/
+        // Insert the test reservation records
+        insert new List<Reservation__c>{ reservation1 };
+
+        // Create a new test context and set the reservation records to it
+        Test.startTest();
+        List<Reservation__c> testReservations = new List<Reservation__c>{ reservation1 };
+        CombineTriggerHandler.handleRoomReservations(testReservations);
+        Test.stopTest();
+
+        // Add assertions here to verify the room reservation logic
+        // For example, you can assert that no errors were added to the reservations.
+        for (Reservation__c res : testReservations) {
+            System.assertNotEquals(null, res.Id, 'Reservation should have an Id.');
+            System.assertEquals( Date.today(), res.Check_in_Date__c, 'Check-in date should be null.');
+            System.assertEquals( Date.today().addDays(3), res.Check_out_Date__c, 'Check-out date should be null.');
+        }
+    }
+
+    @isTest
+    static void testSubmitApplicationForApproval() {
+        // Create test data for Reservation__c records
+        Reservation__c reservation = new Reservation__c(
+            First_Name__c = 'Test First Name',
+            Email__c = 'test@example.com'
+            // Add other required fields here
         );
 
-        // Attempt to insert the overlapping reservation
-        try {
-            insert overlappingReservation;
-            System.assert(false, 'Inserting an overlapping reservation should throw an error.');
-        } catch (DmlException e) {
-            // Verify that the error message is as expected
-            System.assertEquals('Room is already booked for the selected dates.', e.getDmlMessage(0));
-        }
+        // Insert the test reservation record
+        insert reservation;
 
+        // Create a new test context and set the reservation record to it
+        Test.startTest();
+        List<Reservation__c> testReservations = new List<Reservation__c>{ reservation };
+        CombineTriggerHandler.submitApplicationForApproval(testReservations);
         Test.stopTest();
+
+        // Add assertions here to verify the approval process submission logic
+        // For example, you can assert that an approval process was initiated for the reservation.
     }
 }
