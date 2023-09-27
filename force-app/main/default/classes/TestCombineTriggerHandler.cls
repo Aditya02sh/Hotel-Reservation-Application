@@ -1,8 +1,25 @@
 @isTest
-public class TestCombineTriggerHandler {    
-    @isTest
-    static void testSendEmailNotification() {
-        
+public class TestCombineTriggerHandler {  
+    static Profile cus = [SELECT Id FROM Profile where name='Customer' limit 1];
+     static User testUser;
+    static {
+        testUser = new User(
+            ProfileId = cus.id, 
+            Username = 'aditya786sh@fmail.com',
+            Email = 'aditya786sh@fmail.com',
+            FirstName='Ram',
+            LastName='Singh',
+            Alias = 'rsing',
+            TimeZoneSidKey = 'GMT',
+            LocaleSidKey = 'en_US',
+            EmailEncodingKey = 'UTF-8',
+            LanguageLocaleKey = 'en_US'
+        );
+        insert testUser;
+    }
+    
+    static testMethod void testSendEmailNotification() {
+        System.runAs(testUser){
         // Create test data for Reservation__c records
         Reservation__c reservation = new Reservation__c(
             First_Name__c = 'Test First Name',
@@ -27,9 +44,11 @@ public class TestCombineTriggerHandler {
         // Example assertion using ApexMocks:
         // System.assertEquals(1, Test.getSentEmails().size(), 'One email should have been sent.');
     }
+    }
 
     @isTest
     static void testHandleRoomReservations() {
+         System.runAs(testUser){
         // Create test data for Room__c and Reservation__c records
         Room__c room = new Room__c(
             Name = 'Test Room',
@@ -69,10 +88,12 @@ public class TestCombineTriggerHandler {
             System.assertEquals( Date.today(), res.Check_in_Date__c, 'Check-in date should be null.');
             System.assertEquals( Date.today().addDays(3), res.Check_out_Date__c, 'Check-out date should be null.');
         }
+         }
     }
 
     @isTest
     static void testSubmitApplicationForApproval() {
+         System.runAs(testUser){
         // Create test data for Reservation__c records
         Reservation__c reservation = new Reservation__c(
             First_Name__c = 'Test First Name',
@@ -91,5 +112,6 @@ public class TestCombineTriggerHandler {
 
         // Add assertions here to verify the approval process submission logic
         // For example, you can assert that an approval process was initiated for the reservation.
+    }
     }
 }
