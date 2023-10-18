@@ -3,7 +3,6 @@ public class CQ_AS_Test_StudentHandler {
     
     private static User createUserWithPermissionSet() {
         
-        
         PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'CQ_AS_Common_Permission_Set' LIMIT 1];
         
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
@@ -30,7 +29,6 @@ public class CQ_AS_Test_StudentHandler {
         
         return u;
     }
-    
     
     @isTest
     static void testBeforeChange() {

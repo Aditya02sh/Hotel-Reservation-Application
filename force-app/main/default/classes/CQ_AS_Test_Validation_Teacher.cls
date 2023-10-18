@@ -4,13 +4,9 @@ private class CQ_AS_Test_Validation_Teacher {
     static User testUser;
     static Id permSetId;
 
- 
-
     static {
         PermissionSet existingPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'CQ_AS_Common_Permission_set' LIMIT 1];
         permSetId = existingPermSet.Id;
-
- 
 
         testUser = new User(
             ProfileId = pro.id, 
@@ -26,8 +22,6 @@ private class CQ_AS_Test_Validation_Teacher {
         );
         insert testUser;
 
- 
-
         // Assign the Permission Set to the test user
         PermissionSetAssignment psa = new PermissionSetAssignment(
             AssigneeId = testUser.Id,
@@ -35,8 +29,6 @@ private class CQ_AS_Test_Validation_Teacher {
         );
         insert psa;
     }
-
- 
 
     static testMethod void testDateCondition() {
         System.runAs(testUser){
@@ -47,16 +39,12 @@ private class CQ_AS_Test_Validation_Teacher {
             CQ_AS_Course_End_Date__c = Date.today().addDays(-1) // Making target date 1 day before the initiated date
         );
 
- 
-
         Exception expectedException;
         try {
             insert testTeacher;
         } catch (System.DmlException e) {
             expectedException = e;
         }
-
- 
 
         // Assertions
         System.assertNotEquals(null, expectedException, 'A DML Exception should have been thrown due to the validation rule.');

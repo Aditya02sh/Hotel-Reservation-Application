@@ -27,7 +27,6 @@ public class CQ_AS_Student_TriggerHandler {
 
     public static void handleAfterMethod(List<CQ_AS_SQX_Student__c> Students){
         
-        
         Set<Id> TeacherIdsToUpdate = new Set<Id>();
         for (CQ_AS_SQX_Student__c student : Students) {
             if (student.CQ_AS_SQX_Teacher_Lookup__c != null) {
@@ -45,8 +44,6 @@ public class CQ_AS_Student_TriggerHandler {
             teacher.CQ_AS_Child_Record__c = (relatedStudentCount > 0) ? 'Yes' : 'No';
             teachersToUpdate.add(teacher);
         }
-        
-        
         
         if (!teachersToUpdate.isEmpty()) {
             update teachersToUpdate;
