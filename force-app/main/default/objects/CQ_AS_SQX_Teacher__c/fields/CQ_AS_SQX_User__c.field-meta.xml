@@ -5,7 +5,7 @@
     <externalId>false</externalId>
     <label>User</label>
     <referenceTo>User</referenceTo>
-    <relationshipName>Teachers</relationshipName>
+    <relationshipName>CQ_AS_Teachers</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>

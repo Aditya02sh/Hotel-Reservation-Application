@@ -30,6 +30,7 @@
             </value>
         </assignmentItems>
     </assignments>
+    <description>The flow invoked on the course end date automatically and set the date 10 days after from today&apos;s date.</description>
     <environments>Default</environments>
     <formulas>
         <name>EndDate</name>

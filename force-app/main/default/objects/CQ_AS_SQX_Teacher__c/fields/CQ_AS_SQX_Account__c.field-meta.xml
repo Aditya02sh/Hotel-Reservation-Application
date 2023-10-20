@@ -6,7 +6,7 @@
     <label>Account</label>
     <referenceTo>Account</referenceTo>
     <relationshipLabel>Teachers</relationshipLabel>
-    <relationshipName>Teachers</relationshipName>
+    <relationshipName>CQ_AS_Teachers</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
