@@ -1,15 +1,19 @@
 @isTest
 private class CQ_AS_Test_Validation_Teacher {
-    static Profile pro = [SELECT Id FROM Profile WHERE Name = 'Standard User'];
-    static User testUser;
-    static Id permSetId;
-
-    static {
-        PermissionSet existingPermSet = [SELECT Id FROM PermissionSet WHERE Name = 'CQ_AS_Common_Permission_set' LIMIT 1];
-        permSetId = existingPermSet.Id;
-
-        testUser = new User(
-            ProfileId = pro.id, 
+    Private static user testuser;
+    
+    // Helper method to create a user with a specific permission set
+    @testSetup
+    static void createUserWithPermissionSet() {
+        // Retrieve the desired permission set by name
+        PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'CQ_AS_Common_Permission_Set' LIMIT 1];
+        
+        // Retrieve a profile for the user (replace 'Standard User' with the actual profile name)
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1]; 
+        
+        // Create a new user with specified attributes
+         testUser = new User(
+            ProfileId = p.id, 
             Username = 'aditya0211sh@fmail.com',
             Email = 'aditya0211sh@gmail.com',
             FirstName = 'Aditya',
@@ -20,31 +24,34 @@ private class CQ_AS_Test_Validation_Teacher {
             EmailEncodingKey = 'UTF-8',
             LanguageLocaleKey = 'en_US'
         );
+        
+        // Insert the user and assign the permission set
         insert testUser;
-
-        // Assign the Permission Set to the test user
         PermissionSetAssignment psa = new PermissionSetAssignment(
             AssigneeId = testUser.Id,
-            PermissionSetId = permSetId
+            PermissionSetId = ps.Id
         );
         insert psa;
+        
+          
     }
-
-    static testMethod void testDateCondition() {
-        System.runAs(testUser) {
-            // Create a test record with valid dates
+    
+    // Test method to validate a custom date validation rule for Teacher objects
+    @isTest static void givenStartDate_WhenLessThanEndDate_ThenNotInsert() {
+        user test=[select id , username from user where UserName = 'aditya0211sh@fmail.com' LIMIT 1];
+        System.runAs(test) {
+            // Create a test Teacher record with an intentionally invalid date configuration
             CQ_AS_SQX_Teacher__c testTeacher = new CQ_AS_SQX_Teacher__c(
-                Name = 'Test Teacher',
-                CQ_AS_Course_Start_Date__c = Date.today().addDays(-2), // Course start date 2 days before end date
-                CQ_AS_Course_End_Date__c = Date.today()
+                Name = 'Test Restaurant',
+                CQ_AS_Course_Start_Date__c = Date.today(),
+                CQ_AS_Course_End_Date__c = Date.today().addDays(-1) // Making target date 1 day before the initiated date
             );
-
-            // Insert the record
-            insert testTeacher;
-
-            // Validate that the record is inserted successfully
-            List<CQ_AS_SQX_Teacher__c> insertedTeachers = [SELECT Id FROM CQ_AS_SQX_Teacher__c WHERE Id = :testTeacher.Id];
-            System.assertEquals(1, insertedTeachers.size(), 'Record should have been inserted successfully');
+            
+            // Define an exception variable to capture the expected validation exception
+          
+            Database.saveresult Result=Database.insert(testTeacher,false);
+          
+            System.assert(!Result.isSuccess());
         }
     }
 }

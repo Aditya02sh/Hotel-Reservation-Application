@@ -1,8 +1,11 @@
 @isTest
 private class CQ_AS_Test_Teacher_AL_Flow {
-
+    
+    Private static user testuser;
+    
     // Helper method to create a user with a specific permission set
-    private static User createUserWithPermissionSet() {
+    @testSetup
+    static void createUserWithPermissionSet() {
         // Retrieve the desired permission set by name
         PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'CQ_AS_Common_Permission_Set' LIMIT 1];
         
@@ -10,7 +13,7 @@ private class CQ_AS_Test_Teacher_AL_Flow {
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1]; 
         
         // Create a new user with specified attributes
-        User u = new User(
+        testUser = new User(
             ProfileId = p.Id,
             Alias = 'ashar',
             Email = 'aditya0211sh@gmail.com',
@@ -23,19 +26,18 @@ private class CQ_AS_Test_Teacher_AL_Flow {
         );
         
         // Insert the user and assign the permission set
-        insert u;
+        insert testUser;
         PermissionSetAssignment psa = new PermissionSetAssignment(
-            AssigneeId = u.Id,
+            AssigneeId = testUser.Id,
             PermissionSetId = ps.Id
         );
         insert psa;
-        
-        return u;  // Return the created user
     }
     
-    @isTest static void testAutoLaunchedFlow() {
+    @isTest static void givenTeacherRecord_WhenPopEndDate_ThenAssertTheDateValue() {
         // Run the test as the user with the specified permission set
-        System.runAs(createUserWithPermissionSet()) {
+        user test=[select id , username from user where UserName = 'aditya0211sh@fmail.com' LIMIT 1];
+        System.runAs(test) {
             // 1. Insert a test record without the expected updates from the Flow
             CQ_AS_SQX_Teacher__c testTeacher = new CQ_AS_SQX_Teacher__c(
                 Name = 'Test Teacher'
@@ -46,16 +48,12 @@ private class CQ_AS_Test_Teacher_AL_Flow {
             Flow.Interview.CQUI_AS_Set_Date_AL_Flow flow = new Flow.Interview.CQUI_AS_Set_Date_AL_Flow(
                 new Map<String, Object> {
                     'InRecord' => testTeacher
-                }
+                        }
             );
-            
-            Test.startTest();
-            
+
             // Execute the flow
             flow.start();
-            
-            Test.stopTest();
-            
+
             // Retrieve the OutRecord variable from the flow
             CQ_AS_SQX_Teacher__c outTeacher = (CQ_AS_SQX_Teacher__c)flow.getVariableValue('OutRecord');
             
